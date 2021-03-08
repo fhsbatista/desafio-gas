@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:desafio_gas/margins.dart';
 import 'package:desafio_gas/models/address.dart';
+import 'package:desafio_gas/models/brand.dart';
+import 'package:desafio_gas/models/store.dart';
 import 'package:desafio_gas/strings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ChooseResellerPage extends StatefulWidget {
   @override
@@ -9,7 +14,42 @@ class ChooseResellerPage extends StatefulWidget {
 }
 
 class _ChooseResellerPageState extends State<ChooseResellerPage> {
-  Address currentLocation = Address('Av Paulista', 1001, 'Paulista', 'São Paulo', 'SP');
+  Address currentLocation =
+      Address('Av Paulista', 1001, 'Paulista', 'São Paulo', 'SP');
+
+  List<Store> stores = [];
+
+  Future _initializeStores() async {
+    final List json =
+        jsonDecode(await rootBundle.loadString('assets/dados.json'));
+    stores = json
+        .map(
+          (e) => Store(
+            name: e['nome'],
+            brand: Brand(e['tipo']),
+            rating: e['nota'],
+            averageDeliveryTime: DeliveryTime(
+              min: int.parse(
+                e['tempoMedio'].toString().split('-')[0],
+              ),
+              max: int.parse(
+                e['tempoMedio'].toString().split('-')[1],
+              ),
+            ),
+            price: e['preco'],
+            isBestPrice: e['melhorPreco'],
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _initializeStores();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +58,7 @@ class _ChooseResellerPageState extends State<ChooseResellerPage> {
         title: Text(Strings.chooseResellerStrings.title),
         actions: [
           PopupMenuButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.filter_alt),
             onSelected: null,
             itemBuilder: (_) => <PopupMenuItem>[
               PopupMenuItem(
@@ -35,10 +75,17 @@ class _ChooseResellerPageState extends State<ChooseResellerPage> {
               )
             ],
           ),
+          IconButton(
+            icon: Icon(Icons.help),
+            onPressed: () {},
+          )
         ],
       ),
       body: Column(
-        children: [_Location(address: currentLocation)],
+        children: [
+          _Location(address: currentLocation),
+          Expanded(child: _Stores(stores)),
+        ],
       ),
     );
   }
@@ -91,12 +138,31 @@ class _Location extends StatelessWidget {
               ),
               Text(
                 Strings.chooseResellerStrings.changeAddress,
-                style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontSize: 12,
+                ),
               ),
             ],
           )
         ],
       ),
+    );
+  }
+}
+
+class _Stores extends StatelessWidget {
+  final List<Store> stores;
+
+  _Stores(this.stores);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: stores.length,
+      itemBuilder: (_, index) {
+        return Text(stores[index].name);
+      },
     );
   }
 }
