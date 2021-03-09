@@ -22,7 +22,7 @@ class _ChooseResellerPageState extends State<ChooseResellerPage> {
   Future _initializeStores() async {
     final List json =
         jsonDecode(await rootBundle.loadString('assets/dados.json'));
-    stores = json
+    final storesAsList = json
         .map(
           (e) => Store(
             name: e['nome'],
@@ -41,14 +41,15 @@ class _ChooseResellerPageState extends State<ChooseResellerPage> {
           ),
         )
         .toList();
+    setState(() {
+      stores = storesAsList;
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _initializeStores();
-    });
+    _initializeStores();
   }
 
   @override
@@ -161,7 +162,35 @@ class _Stores extends StatelessWidget {
     return ListView.builder(
       itemCount: stores.length,
       itemBuilder: (_, index) {
-        return Text(stores[index].name);
+        final store = stores[index];
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              color: Colors.white,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    color: Colors.red,
+                    child: RotatedBox(
+                      quarterTurns: -1,
+                      child: Text(
+                        store.brand.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Text(stores[index].name),
+                ],
+              ),
+            ),
+          ),
+        );
       },
     );
   }
