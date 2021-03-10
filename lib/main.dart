@@ -17,9 +17,10 @@ class MyApp extends StatelessWidget {
         appBarTheme: Theme.of(context).appBarTheme.copyWith(
               centerTitle: false,
               textTheme: Theme.of(context).primaryTextTheme.copyWith(
-                    headline6: Theme.of(context).primaryTextTheme.headline6.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    headline6:
+                        Theme.of(context).primaryTextTheme.headline6?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                   ),
             ),
       ),
